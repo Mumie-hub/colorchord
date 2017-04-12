@@ -32,6 +32,8 @@ static void * LEDOutThread( void * v )
 	struct LEDOutDriver * led = (struct LEDOutDriver*)v;
 	while(1)
 	{
+		int total_bytes = (led->total_leds*3)+1;
+		total_bytes = ((total_bytes-1)&0xffc0) + 0x40; //Round up.
 		if( led->readyFlag )
 		{
 			int r = libusb_control_transfer( led->devh,
@@ -40,7 +42,7 @@ static void * LEDOutThread( void * v )
 				0x0100, //wValue
 				0x0000, //wIndex
 				led->last_leds,
-				(led->total_leds*3)+1,
+				total_bytes,
 				1000 );
 			if( r < 0 )
 			{
